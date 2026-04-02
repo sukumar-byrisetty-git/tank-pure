@@ -1,5 +1,3 @@
-const logger = require('../config/logger');
-
 class SanitizationService {
     // Remove potentially dangerous characters
     sanitizeString(str) {

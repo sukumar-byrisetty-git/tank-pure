@@ -12,7 +12,6 @@ const auditLogger = (req, res, next) => {
     };
 
     logger.info('[Audit] request', logData);
-    console.log('[Audit] Request', logData);
     next();
 };
 

@@ -17,7 +17,7 @@ const compression = require('compression');
 const rateLimit = require('express-rate-limit');
 const mongoSanitize = require('express-mongo-sanitize');
 const { connectDB, checkDBHealth } = require('./src/config/db');
-const { connectRedis } = require('./src/config/redis');
+const { connectRedis, checkRedisHealth } = require('./src/config/redis');
 const { initQueues } = require('./src/config/queues');
 const logger = require('./src/config/logger');
 const { getConfig } = require('./src/config/env');
@@ -36,14 +36,14 @@ const app = express();
 
 // Security middleware
 const cspDirectives = {
-    defaultSrc: ["'self'"],
-    scriptSrc: ["'self'"],
-    styleSrc: ["'self'"],
+    defaultSrc: ['self'],
+    scriptSrc: ['self'],
+    styleSrc: ['self'],
 };
 
 if (process.env.NODE_ENV !== 'production') {
-    cspDirectives.scriptSrc.push("'unsafe-inline'");
-    cspDirectives.styleSrc.push("'unsafe-inline'");
+    cspDirectives.scriptSrc.push('unsafe-inline');
+    cspDirectives.styleSrc.push('unsafe-inline');
 }
 
 app.use(helmet({
@@ -104,14 +104,19 @@ app.use('/upload', uploadRoutes);
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument));
 
 // Health check endpoint
-app.get('/health', checkDBHealth ? async (req, res) => {
+app.get('/health', async (req, res) => {
     try {
-        const dbHealth = await checkDBHealth();
-        return res.status(dbHealth.status === 'connected' ? 200 : 503).json({
-            status: 'ok',
+        const dbHealth = checkDBHealth ? await checkDBHealth() : { status: 'unknown', message: 'DB check not available' };
+        const redisHealth = await checkRedisHealth();
+
+        const overallStatus = (dbHealth.status === 'connected' && redisHealth.status === 'connected') ? 200 : 503;
+
+        return res.status(overallStatus).json({
+            status: overallStatus === 200 ? 'ok' : 'degraded',
             version: process.env.npm_package_version || '1.0.0',
             environment: process.env.NODE_ENV || 'development',
             database: dbHealth,
+            redis: redisHealth,
             timestamp: new Date().toISOString(),
         });
     } catch (err) {
@@ -122,7 +127,7 @@ app.get('/health', checkDBHealth ? async (req, res) => {
             timestamp: new Date().toISOString(),
         });
     }
-} : (req, res) => res.json({ status: 'ok', version: process.env.npm_package_version || '1.0.0' }));
+});
 
 // 404 handler
 const notFoundMiddleware = require('./src/middlewares/notFound');

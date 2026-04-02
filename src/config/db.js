@@ -56,7 +56,7 @@ const disconnectDB = async () => {
 const checkDBHealth = async () => {
     try {
         const admin = mongoose.connection.db.admin();
-        const result = await admin.ping();
+        await admin.ping();
         return { status: 'connected', message: 'Database is healthy' };
     } catch (err) {
         logger.error('Database health check failed:', err);

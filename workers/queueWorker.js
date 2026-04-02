@@ -2,7 +2,7 @@ const { queues } = require('../src/config/queues');
 const logger = require('../src/config/logger');
 const { connectDB, disconnectDB } = require('../src/config/db');
 const { connectRedis } = require('../src/config/redis');
-const fcm = require('../src/utils/fcm');
+// const fcm = require('../src/utils/fcm');
 
 // Queue processors
 const setupQueueProcessors = async () => {
@@ -10,7 +10,7 @@ const setupQueueProcessors = async () => {
     queues.notifications.process(async (job) => {
         try {
             logger.info(`Processing notification job: ${job.id}`);
-            const { userId, data } = job.data;
+            // const { userId, data } = job.data;
 
             // Send notification via FCM or other service
             // await fcm.sendNotification(userId, data);
@@ -27,7 +27,7 @@ const setupQueueProcessors = async () => {
     queues.emails.process(async (job) => {
         try {
             logger.info(`Processing email job: ${job.id}`);
-            const { email, subject, template, data } = job.data;
+            // const { email, subject, template, data } = job.data;
 
             // Send email via nodemailer or other service
             // await emailService.send(email, subject, template, data);
@@ -44,7 +44,7 @@ const setupQueueProcessors = async () => {
     queues.reports.process(async (job) => {
         try {
             logger.info(`Processing report job: ${job.id}`);
-            const { userId, reportType, filters } = job.data;
+            // const { userId, reportType, filters } = job.data;
 
             // Generate report based on type
             // const report = await reportService.generate(userId, reportType, filters);
@@ -112,7 +112,7 @@ const gracefulShutdown = async (signal) => {
 process.on('SIGTERM', () => gracefulShutdown('SIGTERM'));
 process.on('SIGINT', () => gracefulShutdown('SIGINT'));
 
-process.on('unhandledRejection', (reason, promise) => {
+process.on('unhandledRejection', (reason) => {
     logger.error('Unhandled Rejection:', reason);
 });
 

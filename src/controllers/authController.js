@@ -4,7 +4,7 @@ const bcrypt = require('bcryptjs');
 const crypto = require('crypto');
 const User = require('../models/User');
 const ROLES = require('../constants/roles');
-const { generateToken, verifyToken, generateRefreshToken, verifyRefreshToken } = require('../utils/jwt');
+const { generateToken, generateRefreshToken, verifyRefreshToken } = require('../utils/jwt');
 
 const createSessionTokens = async (user) => {
     const accessToken = generateToken(user);

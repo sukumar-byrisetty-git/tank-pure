@@ -51,4 +51,17 @@ const disconnectRedis = async () => {
     }
 };
 
-module.exports = { connectRedis, getRedis, disconnectRedis };
+const checkRedisHealth = async () => {
+    if (!redisClient) {
+        return { status: 'disconnected', message: 'Redis client not initialized' };
+    }
+    try {
+        await redisClient.ping();
+        return { status: 'connected', message: 'Redis is healthy' };
+    } catch (err) {
+        logger.error('Redis health check failed:', err);
+        return { status: 'disconnected', message: err.message };
+    }
+};
+
+module.exports = { connectRedis, getRedis, disconnectRedis, checkRedisHealth };

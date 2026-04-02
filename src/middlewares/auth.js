@@ -21,7 +21,6 @@ const authMiddleware = async (req, res, next) => {
         }
 
         req.user = user;
-        console.log('[Auth] Authenticated user', { userId: user._id, role: user.role });
         next();
     } catch (err) {
         if (err.name === 'TokenExpiredError') {
